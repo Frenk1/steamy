@@ -441,12 +441,12 @@ class SteamMarketAPI(object):
 
         r = retry_request(lambda f: f.get(url, headers=self.request_headers))
         if not r:
-            return (0, 0.0, 0.0)
+            return {
+                'volume': 0,
+                'lowest_price': 0.0,
+                'median_price': 0.0,
+            }
 
         r = r.json()
-        return (
-            int(r["volume"].replace(",", "")) if 'volume' in r else -1,
-            float(r["lowest_price"].split(";")[-1]) if 'lowest_price' in r else 0.0,
-            float(r["median_price"].split(";")[-1]) if 'median_price' in r else 0.0,
-        )
-
+        del r['success']
+        return r
