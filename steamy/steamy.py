@@ -11,7 +11,7 @@ MARKET_SEARCH_URL = MARKET_URL + "search/render/{args}"
 STEAM_GROUP_LIST_URL = u"http://steamcommunity.com/groups/{id}/memberslistxml/?xml=1"
 
 LIST_ITEMS_QUERY = u"http://steamcommunity.com/market/search/render/?query={query}&start={start}&count={count}&search_descriptions=0&sort_column={sort}&sort_dir={order}&appid={appid}"
-ITEM_PRICE_QUERY = u"http://steamcommunity.com/market/priceoverview/?country=US&currency=1&appid={appid}&market_hash_name={name}"
+ITEM_PRICE_QUERY = u"http://steamcommunity.com/market/priceoverview/?country=US&currency=5&appid={appid}&market_hash_name={name}"
 ITEM_PAGE_QUERY = u"http://steamcommunity.com/market/listings/{appid}/{name}"
 INVENTORY_QUERY = u"http://steamcommunity.com/profiles/{id}/inventory/json/{app}/{ctx}"
 BULK_ITEM_PRICE_QUERY = u"http://steamcommunity.com/market/itemordershistogram?country=US&language=english&currency=1&item_nameid={nameid}"
