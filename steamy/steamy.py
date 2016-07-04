@@ -89,6 +89,7 @@ class SteamAPI(object):
     def __init__(self, key, retry=True):
         self.key = key
         self.retry = retry
+        self.request_headers = {'Accept-Language': 'ru,en-US;q=0.8,en;q=0.6'}
 
     def market(self, appid):
         """
@@ -104,9 +105,9 @@ class SteamAPI(object):
         data['key'] = self.key
 
         if self.retry:
-            resp = retry_request(lambda f: getattr(f, verb.lower())(url, params=data, **kwargs))
+            resp = retry_request(lambda f: getattr(f, verb.lower())(url, params=data, headers=headers, **kwargs))
         else:
-            resp = getattr(requests, verb.lower())(url, params=data, **kwargs)
+            resp = getattr(requests, verb.lower())(url, params=data, headers=headers, **kwargs)
 
         if not resp:
             raise SteamAPIError("Failed to request url `%s`" % url)
@@ -192,7 +193,7 @@ class SteamAPI(object):
         return data["players"][0]
 
     def get_workshop_file(self, id):
-        r = retry_request(lambda f: f.get("http://steamcommunity.com/sharedfiles/filedetails/", params={"id": id}, timeout=10))
+        r = retry_request(lambda f: f.get("http://steamcommunity.com/sharedfiles/filedetails/", headers=self.request_headers, params={"id": id}, timeout=10))
         q = PyQuery(r.content)
 
         if not len(q(".breadcrumbs")):
@@ -258,11 +259,12 @@ class SteamMarketAPI(object):
         self.appid = appid
         self.key = key
         self.retries = retries
+        self.request_headers = {'Accept-Language': 'ru,en-US;q=0.8,en;q=0.6'}
 
     def get_inventory(self, steamid, context=2):
         url = INVENTORY_QUERY.format(id=steamid, app=self.appid, ctx=context)
 
-        r = retry_request(lambda f: f.get(url, timeout=10))
+        r = retry_request(lambda f: f.get(url, timeout=10, headers=self.request_headers))
         if not r:
             raise SteamAPIError("Failed to get inventory for steamid %s" % id)
 
@@ -330,7 +332,7 @@ class SteamMarketAPI(object):
     def get_item_count(self, query=""):
         r = retry_request(lambda f: f.get(MARKET_SEARCH_URL.format(args=format_query_string(
             query=query, appid=self.appid
-        ))))
+        )), headers=self.request_headers))
 
         if not r:
             raise SteamAPIError("Failed to get item count for query `%s`" % query)
@@ -346,7 +348,7 @@ class SteamMarketAPI(object):
             order=order,
             appid=self.appid)
 
-        r = retry_request(lambda f: f.get(url))
+        r = retry_request(lambda f: f.get(url, headers=self.request_headers))
         if not r:
             log.error("Failed to list items: %s", url)
             return None
@@ -357,7 +359,7 @@ class SteamMarketAPI(object):
 
     def get_item_meta(self, item_name):
         r = retry_request(
-            lambda f: f.get(ITEM_PAGE_QUERY.format(name=item_name, appid=self.appid), timeout=10))
+            lambda f: f.get(ITEM_PAGE_QUERY.format(name=item_name, appid=self.appid), timeout=10, headers=self.request_headers))
 
         if not r:
             raise SteamAPIError("Failed to get item meta data for item `%s`" % item_name)
@@ -382,7 +384,7 @@ class SteamMarketAPI(object):
 
     def get_bulkitem_price(self, nameid):
         url = BULK_ITEM_PRICE_QUERY.format(nameid=nameid)
-        r = retry_request(lambda f: f.get(url))
+        r = retry_request(lambda f: f.get(url, headers=self.request_headers))
 
         if not r:
             raise SteamAPIError("Failed to get bulkitem price for nameid `%s`" % nameid)
@@ -396,7 +398,7 @@ class SteamMarketAPI(object):
 
     def get_historical_price_data(self, item_name):
         url = ITEM_PAGE_QUERY.format(name=item_name, appid=self.appid)
-        r = retry_request(lambda f: f.get(url))
+        r = retry_request(lambda f: f.get(url, headers=self.request_headers))
         if not r:
             raise Exception("Failed to get historical price data for `%s`" % item_name)
 
@@ -410,7 +412,7 @@ class SteamMarketAPI(object):
             name=item_name,
             appid=self.appid)
 
-        r = retry_request(lambda f: f.get(url))
+        r = retry_request(lambda f: f.get(url, headers=self.request_headers))
         if not r:
             raise SteamAPIError("Failed to get_item_price_history for item `%s`" % item_name)
 
@@ -428,7 +430,7 @@ class SteamMarketAPI(object):
             name=item_name,
             appid=self.appid)
 
-        r = retry_request(lambda f: f.get(url))
+        r = retry_request(lambda f: f.get(url, headers=self.request_headers))
         if not r:
             return (0, 0.0, 0.0)
 
