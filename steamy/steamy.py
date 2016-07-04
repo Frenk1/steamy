@@ -3,6 +3,7 @@ import re, xmltodict, time, logging, json, requests
 from datetime import datetime
 from pyquery import PyQuery
 from urllib import unquote
+from requests.exceptions import HTTPError, RequestException
 
 log = logging.getLogger(__name__)
 
@@ -23,14 +24,14 @@ name_id_re = re.compile('Market_LoadOrderSpread\( (\\d+) \)\;')
 def format_query_string(**kwargs):
     return "?" + '&'.join(['%s=%s' % i for i in kwargs.items()])
 
-def retry_request(f, count=5, delay=3):
+def retry_request(f, count=1, delay=60):
     for _ in range(count):
         try:
             r = f(requests)
             r.raise_for_status()
             return r
-        except requests.exceptions.RequestException:
-            log.exception("Failed to make a request in retry-mode: ")
+        except (RequestException, HTTPError):
+            log.exception("Failed to make a request in retry-mode. Sleeping %ss: " % delay)
             time.sleep(delay)
     return None
 
