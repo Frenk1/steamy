@@ -358,11 +358,17 @@ class SteamMarketAPI(object):
         pq = PyQuery(r.json()["results_html"])
         items_list = []
 
+        def _get_original_name(url):
+            latest_path_part = url.split('/')[-1:][0]
+            orig_name_without_querystring = latest_path_part.split('?', 1)[0]
+            orig_name = unquote(orig_name_without_querystring).decode('utf-8')
+            return orig_name
+
         links = pq('.market_listing_row_link')[:count] # пока поставлю ограничение, на всякий случай
         for link in links:
             item = {}
             item['url'] = link.attrib.get('href')
-            item['orig_name'] = unquote(link.attrib.get('href').split('/')[-1:][0]).decode('utf-8')
+            item['orig_name'] = _get_original_name(link.attrib.get('href')) # наркота
             items_list.append(item)
         return items_list
 
