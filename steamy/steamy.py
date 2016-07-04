@@ -1,6 +1,8 @@
+# coding: utf8
 import re, xmltodict, time, logging, json, requests
 from datetime import datetime
 from pyquery import PyQuery
+from urllib import unquote
 
 log = logging.getLogger(__name__)
 
@@ -354,8 +356,15 @@ class SteamMarketAPI(object):
             return None
 
         pq = PyQuery(r.json()["results_html"])
-        rows = pq(".market_listing_row .market_listing_item_name")
-        return map(lambda i: i.text, rows)
+        items_list = []
+
+        links = pq('.market_listing_row_link')[:count] # пока поставлю ограничение, на всякий случай
+        for link in links:
+            item = {}
+            item['url'] = link.attrib.get('href')
+            item['orig_name'] = unquote(link.attrib.get('href').split('/')[-1:][0]).decode('utf-8')
+            items_list.append(item)
+        return items_list
 
     def get_item_meta(self, item_name):
         r = retry_request(
