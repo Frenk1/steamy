@@ -454,5 +454,4 @@ class SteamMarketAPI(object):
             }
 
         r = r.json()
-        del r['success']
         return r
