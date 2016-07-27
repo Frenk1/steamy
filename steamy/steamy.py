@@ -370,6 +370,10 @@ class SteamMarketAPI(object):
             item = {}
             item['url'] = link.attrib.get('href')
             item['orig_name'] = _get_original_name(link.attrib.get('href')) # наркота
+            item['rus_name'] = ''
+            rus_name = pq(link).find('.market_listing_item_name')
+            if rus_name:
+                item['rus_name'] = rus_name[0].text
             items_list.append(item)
         return items_list
 
