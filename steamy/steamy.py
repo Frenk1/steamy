@@ -24,7 +24,7 @@ name_id_re = re.compile('Market_LoadOrderSpread\( (\\d+) \)\;')
 def format_query_string(**kwargs):
     return "?" + '&'.join(['%s=%s' % i for i in kwargs.items()])
 
-def retry_request(f, count=1, delay=60):
+def retry_request(f, count=1, delay=5):
     for _ in range(count):
         try:
             r = f(requests)
